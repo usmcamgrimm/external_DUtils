@@ -63,7 +63,6 @@ import android.util.Slog;
 import android.view.InputDevice;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
-import android.view.WindowManagerPolicyControl;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
@@ -93,10 +92,8 @@ public class ActionHandler {
     public static final String SYSTEMUI_TASK_NOTIFICATION_PANEL = "task_notification_panel";
     public static final String SYSTEMUI_TASK_SCREENSHOT = "task_screenshot";
     public static final String SYSTEMUI_TASK_REGION_SCREENSHOT = "task_region_screenshot";
-    public static final String SYSTEMUI_TASK_SCREENRECORD = "task_screenrecord";
     // public static final String SYSTEMUI_TASK_AUDIORECORD =
     // "task_audiorecord";
-    public static final String SYSTEMUI_TASK_EXPANDED_DESKTOP = "task_expanded_desktop";
     public static final String SYSTEMUI_TASK_SCREENOFF = "task_screenoff";
     public static final String SYSTEMUI_TASK_KILL_PROCESS = "task_killcurrent";
     public static final String SYSTEMUI_TASK_ASSIST = "task_assist";
@@ -135,7 +132,6 @@ public class ActionHandler {
     public static final String SYSTEMUI_TASK_ONE_HANDED_MODE_RIGHT = "task_one_handed_mode_right";
 
     public static final String INTENT_SHOW_POWER_MENU = "action_handler_show_power_menu";
-    public static final String INTENT_TOGGLE_SCREENRECORD = "action_handler_toggle_screenrecord";
     public static final String INTENT_SCREENSHOT = "action_handler_screenshot";
     public static final String INTENT_REGION_SCREENSHOT = "action_handler_region_screenshot";
     public static final String INTENT_TOGGLE_FLASHLIGHT = "action_handler_toggle_flashlight";
@@ -146,8 +142,6 @@ public class ActionHandler {
         NotificationPanel(SYSTEMUI_TASK_NOTIFICATION_PANEL, SYSTEMUI, "label_action_notification_panel", "ic_sysbar_notification_panel"),
         Screenshot(SYSTEMUI_TASK_SCREENSHOT, SYSTEMUI, "label_action_screenshot", "ic_sysbar_screenshot"),
         RegionScreenshot(SYSTEMUI_TASK_REGION_SCREENSHOT, SYSTEMUI, "label_action_region_screenshot", "ic_sysbar_region_screenshot"),
-        Screenrecord(SYSTEMUI_TASK_SCREENRECORD, SYSTEMUI, "label_action_screenrecord", "ic_sysbar_record_screen"),
-        ExpandedDesktop(SYSTEMUI_TASK_EXPANDED_DESKTOP, SYSTEMUI, "label_action_expanded_desktop", "ic_sysbar_expanded_desktop"),
         ScreenOff(SYSTEMUI_TASK_SCREENOFF, SYSTEMUI, "label_action_screen_off", "ic_sysbar_screen_off"),
         KillApp(SYSTEMUI_TASK_KILL_PROCESS, SYSTEMUI, "label_action_force_close_app", "ic_sysbar_killtask"),
         Assistant(SYSTEMUI_TASK_ASSIST, SYSTEMUI, "label_action_search_assistant", "ic_sysbar_assist"),
@@ -207,8 +201,7 @@ public class ActionHandler {
             SystemAction.LastApp, SystemAction.PowerMenu,
             SystemAction.Overview,SystemAction.Menu,
             SystemAction.Back, SystemAction.VoiceSearch,
-            SystemAction.Home, SystemAction.ExpandedDesktop,
-            SystemAction.Screenrecord, SystemAction.Ime,
+            SystemAction.Home, SystemAction.Ime,
             SystemAction.StopScreenPinning, SystemAction.ImeArrowDown,
             SystemAction.ImeArrowLeft, SystemAction.ImeArrowRight,
             SystemAction.ImeArrowUp, SystemAction.InAppSearch,
@@ -273,11 +266,6 @@ public class ActionHandler {
             } else if (TextUtils.equals(action, SYSTEMUI_TASK_CAMERA)
                     && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
                 continue;
-            } else if (TextUtils.equals(action, SYSTEMUI_TASK_SCREENRECORD)) {
-                if (!DUActionUtils.getBoolean(context, "config_enableScreenrecordChord",
-                        DUActionUtils.PACKAGE_ANDROID)) {
-                    continue;
-                }
             } else if (TextUtils.equals(action, SYSTEMUI_TASK_EDITING_SMARTBAR)) {
                 // don't allow smartbar editor on Fling
                 if (Settings.Secure.getIntForUser(context.getContentResolver(),
@@ -463,14 +451,8 @@ public class ActionHandler {
         } else if (action.equals(SYSTEMUI_TASK_REGION_SCREENSHOT)) {
             takeRegionScreenshot(context);
             return;
-        } else if (action.equals(SYSTEMUI_TASK_SCREENRECORD)) {
-            takeScreenrecord(context);
-            return;
             // } else if (action.equals(SYSTEMUI_TASK_AUDIORECORD)) {
             // takeAudiorecord();
-        } else if (action.equals(SYSTEMUI_TASK_EXPANDED_DESKTOP)) {
-            toggleExpandedDesktop(context);
-            return;
         } else if (action.equals(SYSTEMUI_TASK_SCREENOFF)) {
             screenOff(context);
             return;
@@ -703,23 +685,6 @@ public class ActionHandler {
         }
     }
 
-
-    private static void toggleExpandedDesktop(Context context) {
-        ContentResolver cr = context.getContentResolver();
-        String newVal = "";
-        String currentVal = Settings.Global.getString(cr, Settings.Global.POLICY_CONTROL);
-        if (currentVal == null) {
-            currentVal = newVal;
-        }
-        if ("".equals(currentVal)) {
-            newVal = "immersive.full=*";
-        }
-        Settings.Global.putString(cr, Settings.Global.POLICY_CONTROL, newVal);
-        if (newVal.equals("")) {
-            WindowManagerPolicyControl.reloadFromSetting(context);
-        }
-    }
-
     private static void launchVoiceSearch(Context context) {
         sendCloseSystemWindows("assist");
         // launch the search activity
@@ -867,11 +832,6 @@ public class ActionHandler {
 
     private static void takeRegionScreenshot(Context context) {
         context.sendBroadcastAsUser(new Intent(INTENT_REGION_SCREENSHOT), new UserHandle(
-                UserHandle.USER_ALL));
-    }
-
-    private static void takeScreenrecord(Context context) {
-        context.sendBroadcastAsUser(new Intent(INTENT_TOGGLE_SCREENRECORD), new UserHandle(
                 UserHandle.USER_ALL));
     }
 
