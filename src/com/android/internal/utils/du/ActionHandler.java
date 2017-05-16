@@ -133,7 +133,6 @@ public class ActionHandler {
 
     public static final String INTENT_SHOW_POWER_MENU = "action_handler_show_power_menu";
     public static final String INTENT_SCREENSHOT = "action_handler_screenshot";
-    public static final String INTENT_REGION_SCREENSHOT = "action_handler_region_screenshot";
     public static final String INTENT_TOGGLE_FLASHLIGHT = "action_handler_toggle_flashlight";
 
     static enum SystemAction {
@@ -141,7 +140,6 @@ public class ActionHandler {
         SettingsPanel(SYSTEMUI_TASK_SETTINGS_PANEL, SYSTEMUI, "label_action_settings_panel", "ic_sysbar_settings_panel"),
         NotificationPanel(SYSTEMUI_TASK_NOTIFICATION_PANEL, SYSTEMUI, "label_action_notification_panel", "ic_sysbar_notification_panel"),
         Screenshot(SYSTEMUI_TASK_SCREENSHOT, SYSTEMUI, "label_action_screenshot", "ic_sysbar_screenshot"),
-        RegionScreenshot(SYSTEMUI_TASK_REGION_SCREENSHOT, SYSTEMUI, "label_action_region_screenshot", "ic_sysbar_region_screenshot"),
         ScreenOff(SYSTEMUI_TASK_SCREENOFF, SYSTEMUI, "label_action_screen_off", "ic_sysbar_screen_off"),
         KillApp(SYSTEMUI_TASK_KILL_PROCESS, SYSTEMUI, "label_action_force_close_app", "ic_sysbar_killtask"),
         Assistant(SYSTEMUI_TASK_ASSIST, SYSTEMUI, "label_action_search_assistant", "ic_sysbar_assist"),
@@ -209,9 +207,8 @@ public class ActionHandler {
             SystemAction.ImeArrowUp, SystemAction.InAppSearch,
             SystemAction.VolumePanel, SystemAction.ClearNotifications,
             SystemAction.EditingSmartbar, SystemAction.SplitScreen,
-            SystemAction.RegionScreenshot, SystemAction.OneHandedModeLeft,
-            SystemAction.OneHandedModeRight, SystemAction.MediaArrowLeft,
-            SystemAction.MediaArrowRight
+            SystemAction.OneHandedModeLeft,SystemAction.OneHandedModeRight, 
+            SystemAction.MediaArrowLeft,SystemAction.MediaArrowRight
     };
 
     public static class ActionIconResources {
@@ -453,11 +450,11 @@ public class ActionHandler {
         } else if (action.equals(SYSTEMUI_TASK_SCREENSHOT)) {
             takeScreenshot(context);
             return;
-        } else if (action.equals(SYSTEMUI_TASK_REGION_SCREENSHOT)) {
-            takeRegionScreenshot(context);
-            return;
-            // } else if (action.equals(SYSTEMUI_TASK_AUDIORECORD)) {
-            // takeAudiorecord();
+        //} else if (action.equals(SYSTEMUI_TASK_REGION_SCREENSHOT)) {
+        //  takeRegionScreenshot(context);
+        //   return;
+        // } else if (action.equals(SYSTEMUI_TASK_AUDIORECORD)) {
+        // takeAudiorecord();
         } else if (action.equals(SYSTEMUI_TASK_SCREENOFF)) {
             screenOff(context);
             return;
@@ -832,11 +829,6 @@ public class ActionHandler {
 
     private static void takeScreenshot(Context context) {
         context.sendBroadcastAsUser(new Intent(INTENT_SCREENSHOT), new UserHandle(
-                UserHandle.USER_ALL));
-    }
-
-    private static void takeRegionScreenshot(Context context) {
-        context.sendBroadcastAsUser(new Intent(INTENT_REGION_SCREENSHOT), new UserHandle(
                 UserHandle.USER_ALL));
     }
 
