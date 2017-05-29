@@ -91,7 +91,8 @@ public class ActionHandler {
     public static final String SYSTEMUI_TASK_SETTINGS_PANEL = "task_settings_panel";
     public static final String SYSTEMUI_TASK_NOTIFICATION_PANEL = "task_notification_panel";
     public static final String SYSTEMUI_TASK_SCREENSHOT = "task_screenshot";
-    public static final String SYSTEMUI_TASK_REGION_SCREENSHOT = "task_region_screenshot";
+    public static final String SYSTEMUI_TASK_SCREENRECORD = "task_screenrecord";
+    //public static final String SYSTEMUI_TASK_REGION_SCREENSHOT = "task_region_screenshot";
     // public static final String SYSTEMUI_TASK_AUDIORECORD =
     // "task_audiorecord";
     public static final String SYSTEMUI_TASK_SCREENOFF = "task_screenoff";
@@ -133,6 +134,7 @@ public class ActionHandler {
 
     public static final String INTENT_SHOW_POWER_MENU = "action_handler_show_power_menu";
     public static final String INTENT_SCREENSHOT = "action_handler_screenshot";
+    public static final String INTENT_TOGGLE_SCREENRECORD = "action_handler_toggle_screenrecord";
     public static final String INTENT_TOGGLE_FLASHLIGHT = "action_handler_toggle_flashlight";
 
     static enum SystemAction {
@@ -140,6 +142,7 @@ public class ActionHandler {
         SettingsPanel(SYSTEMUI_TASK_SETTINGS_PANEL, SYSTEMUI, "label_action_settings_panel", "ic_sysbar_settings_panel"),
         NotificationPanel(SYSTEMUI_TASK_NOTIFICATION_PANEL, SYSTEMUI, "label_action_notification_panel", "ic_sysbar_notification_panel"),
         Screenshot(SYSTEMUI_TASK_SCREENSHOT, SYSTEMUI, "label_action_screenshot", "ic_sysbar_screenshot"),
+        Screenrecord(SYSTEMUI_TASK_SCREENRECORD, SYSTEMUI, "label_action_screenrecord", "ic_sysbar_record_screen"),
         ScreenOff(SYSTEMUI_TASK_SCREENOFF, SYSTEMUI, "label_action_screen_off", "ic_sysbar_screen_off"),
         KillApp(SYSTEMUI_TASK_KILL_PROCESS, SYSTEMUI, "label_action_force_close_app", "ic_sysbar_killtask"),
         Assistant(SYSTEMUI_TASK_ASSIST, SYSTEMUI, "label_action_search_assistant", "ic_sysbar_assist"),
@@ -207,8 +210,9 @@ public class ActionHandler {
             SystemAction.ImeArrowUp, SystemAction.InAppSearch,
             SystemAction.VolumePanel, SystemAction.ClearNotifications,
             SystemAction.EditingSmartbar, SystemAction.SplitScreen,
-            SystemAction.OneHandedModeLeft,SystemAction.OneHandedModeRight, 
-            SystemAction.MediaArrowLeft,SystemAction.MediaArrowRight
+            SystemAction.OneHandedModeLeft, SystemAction.OneHandedModeRight, 
+            SystemAction.MediaArrowLeft, SystemAction.MediaArrowRight,
+            SystemAction.Screenrecord
     };
 
     public static class ActionIconResources {
@@ -268,6 +272,11 @@ public class ActionHandler {
             } else if (TextUtils.equals(action, SYSTEMUI_TASK_CAMERA)
                     && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
                 continue;
+            } else if (TextUtils.equals(action, SYSTEMUI_TASK_SCREENRECORD)) {
+                 if (!DUActionUtils.getBoolean(context, "config_enableScreenrecordChord",
+                         DUActionUtils.PACKAGE_ANDROID)) {
+                     continue;
+                }
             } else if (TextUtils.equals(action, SYSTEMUI_TASK_EDITING_SMARTBAR)) {
                 // don't allow smartbar editor on Fling
                 if (Settings.Secure.getIntForUser(context.getContentResolver(),
@@ -449,6 +458,9 @@ public class ActionHandler {
             return;
         } else if (action.equals(SYSTEMUI_TASK_SCREENSHOT)) {
             takeScreenshot(context);
+            return;
+        } else if (action.equals(SYSTEMUI_TASK_SCREENRECORD)) {
+            takeScreenrecord(context);
             return;
         //} else if (action.equals(SYSTEMUI_TASK_REGION_SCREENSHOT)) {
         //  takeRegionScreenshot(context);
@@ -832,6 +844,10 @@ public class ActionHandler {
                 UserHandle.USER_ALL));
     }
 
+    private static void takeScreenrecord(Context context) {
+        context.sendBroadcastAsUser(new Intent(INTENT_TOGGLE_SCREENRECORD), new UserHandle(
+                UserHandle.USER_ALL));
+    }
     private static void killProcess(Context context) {
         if (context.checkCallingOrSelfPermission(android.Manifest.permission.FORCE_STOP_PACKAGES) == PackageManager.PERMISSION_GRANTED
             && context.checkCallingOrSelfPermission(android.Manifest.permission.FORCE_STOP_PACKAGES) == PackageManager.PERMISSION_GRANTED
