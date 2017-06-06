@@ -63,6 +63,7 @@ import android.util.Slog;
 import android.view.InputDevice;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
+import android.view.WindowManagerPolicyControl;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
@@ -95,6 +96,7 @@ public class ActionHandler {
     //public static final String SYSTEMUI_TASK_REGION_SCREENSHOT = "task_region_screenshot";
     // public static final String SYSTEMUI_TASK_AUDIORECORD =
     // "task_audiorecord";
+    public static final String SYSTEMUI_TASK_EXPANDED_DESKTOP = "task_expanded_desktop";
     public static final String SYSTEMUI_TASK_SCREENOFF = "task_screenoff";
     public static final String SYSTEMUI_TASK_KILL_PROCESS = "task_killcurrent";
     public static final String SYSTEMUI_TASK_ASSIST = "task_assist";
@@ -143,6 +145,7 @@ public class ActionHandler {
         NotificationPanel(SYSTEMUI_TASK_NOTIFICATION_PANEL, SYSTEMUI, "label_action_notification_panel", "ic_sysbar_notification_panel"),
         Screenshot(SYSTEMUI_TASK_SCREENSHOT, SYSTEMUI, "label_action_screenshot", "ic_sysbar_screenshot"),
         Screenrecord(SYSTEMUI_TASK_SCREENRECORD, SYSTEMUI, "label_action_screenrecord", "ic_sysbar_record_screen"),
+        ExpandedDesktop(SYSTEMUI_TASK_EXPANDED_DESKTOP, SYSTEMUI, "label_action_expanded_desktop", "ic_sysbar_expanded_desktop"),
         ScreenOff(SYSTEMUI_TASK_SCREENOFF, SYSTEMUI, "label_action_screen_off", "ic_sysbar_screen_off"),
         KillApp(SYSTEMUI_TASK_KILL_PROCESS, SYSTEMUI, "label_action_force_close_app", "ic_sysbar_killtask"),
         Assistant(SYSTEMUI_TASK_ASSIST, SYSTEMUI, "label_action_search_assistant", "ic_sysbar_assist"),
@@ -212,7 +215,7 @@ public class ActionHandler {
             SystemAction.EditingSmartbar, SystemAction.SplitScreen,
             SystemAction.OneHandedModeLeft, SystemAction.OneHandedModeRight, 
             SystemAction.MediaArrowLeft, SystemAction.MediaArrowRight,
-            SystemAction.Screenrecord
+            SystemAction.ExpandedDesktop, SystemAction.Screenrecord
     };
 
     public static class ActionIconResources {
@@ -467,6 +470,9 @@ public class ActionHandler {
         //   return;
         // } else if (action.equals(SYSTEMUI_TASK_AUDIORECORD)) {
         // takeAudiorecord();
+        } else if (action.equals(SYSTEMUI_TASK_EXPANDED_DESKTOP)) {
+            toggleExpandedDesktop(context);
+            return;
         } else if (action.equals(SYSTEMUI_TASK_SCREENOFF)) {
             screenOff(context);
             return;
@@ -696,6 +702,22 @@ public class ActionHandler {
                 ActivityManagerNative.getDefault().closeSystemDialogs(reason);
             } catch (RemoteException e) {
             }
+        }
+    }
+
+    private static void toggleExpandedDesktop(Context context) {
+        ContentResolver cr = context.getContentResolver();
+        String newVal = "";
+        String currentVal = Settings.Global.getString(cr, Settings.Global.POLICY_CONTROL);
+        if (currentVal == null) {
+            currentVal = newVal;
+        }
+        if ("".equals(currentVal)) {
+            newVal = "immersive.full=*";
+        }
+        Settings.Global.putString(cr, Settings.Global.POLICY_CONTROL, newVal);
+        if (newVal.equals("")) {
+            WindowManagerPolicyControl.reloadFromSetting(context);
         }
     }
 
